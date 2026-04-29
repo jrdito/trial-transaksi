@@ -1,1 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Input Transaksi</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background-color: #f0f2f5; }
+        .container { max-width: 400px; width: 100%; border: 1px solid #ddd; padding: 30px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 8px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #output { margin-top: 25px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 8px; display: none; text-align: center; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h2>Input Data Transaksi</h2>
+    <input type="text" id="userInput" placeholder="Masukkan teks di sini...">
+    <button onclick="prosesSimpan()">Kirim & Dapatkan Kode</button>
+
+    <div id="output">
+        <span>Data Tersimpan! Kode Anda:</span>
+        <strong id="kodeTampil" style="display:block; font-size: 20px;"></strong>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // MASUKKAN DATA KAMU DI SINI
+    const URL_DATABASE = 'https://voedikbmkgkhqktxlbef.supabase.co/rest/v1/';
+    const KEY_DATABASE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvZWRpa2Jta2draHFrdHhsYmVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0ODc1ODMsImV4cCI6MjA5MzA2MzU4M30.pHuIw3A7L9ZZplMGC5K5bryC2jyKUIf99lDSAI4yuU0';
+
+    // Inisialisasi client
+    const koneksiSupabase = supabase.createClient(URL_DATABASE, KEY_DATABASE);
+
+    async function prosesSimpan() {
+        const inputBox = document.getElementById('userInput');
+        const teksVal = inputBox.value;
+
+        if (!teksVal) {
+            alert("Isi teks dulu!");
+            return;
+        }
+
+        const kodeBaru = "TX-" + Math.floor(Math.random() * 100000);
+
+        try {
+            // Perhatikan nama variabel 'koneksiSupabase' di sini harus sama dengan yang di atas
+            const { data, error } = await koneksiSupabase
+                .from('transaksi')
+                .insert([{ isi_teks: teksVal, kode_transaksi: kodeBaru }]);
+
+            if (error) throw error;
+
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('kodeTampil').innerText = kodeBaru;
+            inputBox.value = ""; 
+
+        } catch (err) {
+            console.error("Gagal:", err);
+            alert("Error: " + err.message);
+        }
+    }
+</script>
+
+</body>
+</html>
